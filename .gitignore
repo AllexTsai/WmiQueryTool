@@ -1,6 +1,48 @@
-﻿bin/
+﻿# Build results
+bin/
 obj/
+Debug/
+Release/
+
+# Visual Studio / VS Code
 .vscode/
 *.user
 *.suo
-*.env
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuspec
+project.lock.json
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# IDE settings
+*.dbmdl
+*.jfm
+*.pdb
+
+# Test results
+TestResult.xml
+TestResults/
+
+# Publish
+publish/
+*.publishsettings
+
+# Others
+*.exe
+*.dll
+*.cache
+*.config
+*.ide
