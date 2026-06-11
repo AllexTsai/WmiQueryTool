@@ -1,13 +1,20 @@
 ﻿<Window x:Class="WmiQueryTool.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:WmiQueryTool"
         Title="WMI Query Tool" Height="600" Width="900">
+
+    <Window.Resources>
+        <!-- BoolToVisibilityConverter -->
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Window.Resources>
+
     <Grid Margin="10">
         <TabControl>
             <!-- 查詢設定分頁 -->
             <TabItem Header="Query Settings">
                 <StackPanel Margin="10">
-                    <!-- 常用查詢 -->
+                    <!-- Common Queries -->
                     <GroupBox Header="Common Queries" Margin="0,0,0,10">
                         <ComboBox x:Name="QuerySelector" Height="30" SelectionChanged="QuerySelector_Changed">
                             <ComboBoxItem Content="Operating System" Tag="Win32_OperatingSystem"/>
@@ -17,18 +24,18 @@
                         </ComboBox>
                     </GroupBox>
 
-                    <!-- 自訂查詢 -->
+                    <!-- Custom Query -->
                     <GroupBox Header="Custom Query" Margin="0,0,0,10">
                         <TextBox x:Name="QueryBox" Height="60" AcceptsReturn="True" 
                                  Text="SELECT * FROM Win32_OperatingSystem"/>
                     </GroupBox>
 
-                    <!-- 查詢歷史 -->
+                    <!-- Query History -->
                     <GroupBox Header="Query History" Margin="0,10,0,10">
                         <ListBox x:Name="HistoryList" Height="100" SelectionChanged="HistoryList_SelectionChanged"/>
                     </GroupBox>
 
-                    <!-- 查詢範本 (可收合) -->
+                    <!-- Query Templates -->
                     <Expander Header="Query Templates" IsExpanded="False" Margin="0,10,0,10">
                         <ComboBox x:Name="TemplateSelector" Height="30" SelectionChanged="TemplateSelector_Changed">
                             <ComboBoxItem Content="Operating System Info" Tag="SELECT Caption, Version, BuildNumber FROM Win32_OperatingSystem"/>
@@ -39,7 +46,7 @@
                         </ComboBox>
                     </Expander>
 
-                    <!-- 操作按鈕 -->
+                    <!-- Buttons -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
                         <Button Content="Run Query" Width="100" Margin="0,0,10,0"
                                 ToolTip="執行目前的 WMI 查詢"
@@ -54,8 +61,25 @@
             <!-- 查詢結果分頁 -->
             <TabItem Header="Results">
                 <DockPanel Margin="10">
+                    <!-- 篩選區 (含水印提示文字) -->
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+                        <TextBox x:Name="FilterBox" Width="200" Height="25"/>
+                        <TextBlock Text="輸入關鍵字篩選"
+                                   Foreground="Gray"
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"
+                                   Visibility="{Binding Text.IsEmpty, ElementName=FilterBox, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="0,0,0,10">
+                        <Button Content="Apply Filter" Width="100" Click="ApplyFilter_Click"/>
+                        <Button Content="Clear Filter" Width="100" Margin="10,0,0,0" Click="ClearFilter_Click"/>
+                    </StackPanel>
+
+                    <!-- DataGrid -->
                     <DataGrid x:Name="ResultGrid" AutoGenerateColumns="False"
-                              IsReadOnly="True" DockPanel.Dock="Top" Height="450"
+                              IsReadOnly="True" Height="400"
                               CanUserSortColumns="True" CanUserReorderColumns="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ObjectId" Binding="{Binding ObjectId}" Width="120"/>
@@ -63,6 +87,7 @@
                             <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
+
                     <!-- 狀態列 -->
                     <StatusBar DockPanel.Dock="Bottom">
                         <StatusBarItem>

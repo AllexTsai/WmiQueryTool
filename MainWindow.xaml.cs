@@ -9,10 +9,12 @@ using Microsoft.Win32;
 
 namespace WmiQueryTool
 {
+    // 資料模型
     public record WmiProperty(string ObjectId, string Name, string Value);
 
     public partial class MainWindow : Window
     {
+        private List<WmiProperty> currentResults = new();
         private readonly List<string> history = new();
 
         public MainWindow()
@@ -20,6 +22,7 @@ namespace WmiQueryTool
             InitializeComponent();
         }
 
+        // 常用查詢選擇
         private void QuerySelector_Changed(object sender, SelectionChangedEventArgs e)
         {
             if (QuerySelector.SelectedItem is ComboBoxItem item && item.Tag is string className)
@@ -28,6 +31,16 @@ namespace WmiQueryTool
             }
         }
 
+        // 範本查詢選擇
+        private void TemplateSelector_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            if (TemplateSelector.SelectedItem is ComboBoxItem item && item.Tag is string queryTemplate)
+            {
+                QueryBox.Text = queryTemplate;
+            }
+        }
+
+        // 執行查詢
         private void RunQuery_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -51,17 +64,16 @@ namespace WmiQueryTool
                     objectIndex++;
                 }
 
+                currentResults = results;
+                ResultGrid.ItemsSource = currentResults;
+
                 if (results.Count > 0)
                 {
-                    ResultGrid.ItemsSource = results;
                     StatusMessage.Text = $"查詢完成，共 {objectIndex - 1} 個物件，{results.Count} 筆屬性。";
-
-                    // 更新歷史紀錄
                     AddToHistory(query);
                 }
                 else
                 {
-                    ResultGrid.ItemsSource = null;
                     StatusMessage.Text = "查詢沒有返回任何結果。";
                 }
             }
@@ -72,6 +84,7 @@ namespace WmiQueryTool
             }
         }
 
+        // 更新查詢歷史
         private void AddToHistory(string query)
         {
             if (!history.Contains(query))
@@ -84,6 +97,7 @@ namespace WmiQueryTool
             }
         }
 
+        // 選擇歷史查詢
         private void HistoryList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (HistoryList.SelectedItem is string selectedQuery)
@@ -92,6 +106,7 @@ namespace WmiQueryTool
             }
         }
 
+        // 匯出 CSV
         private void ExportCsv_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -136,12 +151,30 @@ namespace WmiQueryTool
             }
         }
 
-        private void TemplateSelector_Changed(object sender, SelectionChangedEventArgs e)
+        // 套用篩選 (不使用 ICollectionView)
+        private void ApplyFilter_Click(object sender, RoutedEventArgs e)
         {
-            if (TemplateSelector.SelectedItem is ComboBoxItem item && item.Tag is string queryTemplate)
+            string keyword = FilterBox.Text.Trim();
+            if (string.IsNullOrEmpty(keyword))
             {
-                QueryBox.Text = queryTemplate;
+                StatusMessage.Text = "請輸入篩選關鍵字。";
+                return;
             }
+
+            var filtered = currentResults.FindAll(prop =>
+                prop.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                prop.Value.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+
+            ResultGrid.ItemsSource = filtered;
+            StatusMessage.Text = $"已套用篩選：{keyword}，共 {filtered.Count} 筆結果。";
+        }
+
+        // 清除篩選 (不使用 ICollectionView)
+        private void ClearFilter_Click(object sender, RoutedEventArgs e)
+        {
+            ResultGrid.ItemsSource = currentResults;
+            FilterBox.Text = "";
+            StatusMessage.Text = "已清除篩選。";
         }
     }
 }
