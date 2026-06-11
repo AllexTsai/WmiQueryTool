@@ -135,5 +135,13 @@ namespace WmiQueryTool
                 MessageBox.Show($"匯出失敗: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void TemplateSelector_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            if (TemplateSelector.SelectedItem is ComboBoxItem item && item.Tag is string queryTemplate)
+            {
+                QueryBox.Text = queryTemplate;
+            }
+        }
     }
 }
