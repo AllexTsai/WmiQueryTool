@@ -9,13 +9,14 @@ using Microsoft.Win32;
 
 namespace WmiQueryTool
 {
-    // 資料模型
     public record WmiProperty(string ObjectId, string Name, string Value);
 
     public partial class MainWindow : Window
     {
         private List<WmiProperty> currentResults = new();
         private readonly List<string> history = new();
+        private int currentPage = 1;
+        private int pageSize = 10; // 每頁顯示 10 筆，方便測試
 
         public MainWindow()
         {
@@ -65,22 +66,71 @@ namespace WmiQueryTool
                 }
 
                 currentResults = results;
-                ResultGrid.ItemsSource = currentResults;
+                currentPage = 1;
+                ShowPage();
 
-                if (results.Count > 0)
-                {
-                    StatusMessage.Text = $"查詢完成，共 {objectIndex - 1} 個物件，{results.Count} 筆屬性。";
-                    AddToHistory(query);
-                }
-                else
-                {
-                    StatusMessage.Text = "查詢沒有返回任何結果。";
-                }
+                StatusMessage.Text = results.Count > 0
+                    ? $"查詢完成，共 {objectIndex - 1} 個物件，{results.Count} 筆屬性。"
+                    : "查詢沒有返回任何結果。";
+
+                if (results.Count > 0) AddToHistory(query);
             }
             catch (Exception ex)
             {
                 StatusMessage.Text = $"查詢失敗: {ex.Message}";
                 MessageBox.Show($"Error: {ex.Message}", "Query Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // 顯示分頁
+        private void ShowPage()
+        {
+            int total = currentResults.Count;
+            if (total == 0)
+            {
+                ResultGrid.ItemsSource = null;
+                PageInfo.Text = "沒有資料";
+                return;
+            }
+
+            int totalPages = (int)Math.Ceiling((double)total / pageSize);
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            int startIndex = (currentPage - 1) * pageSize;
+            int count = Math.Min(pageSize, total - startIndex);
+
+            var pageData = currentResults.GetRange(startIndex, count);
+
+            ResultGrid.ItemsSource = pageData;
+            PageInfo.Text = $"第 {currentPage}/{totalPages} 頁，共 {total} 筆屬性";
+        }
+
+        // 上一頁
+        private void PrevPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentPage > 1)
+            {
+                currentPage--;
+                ShowPage();
+            }
+            else
+            {
+                StatusMessage.Text = "已在第一頁";
+            }
+        }
+
+        // 下一頁
+        private void NextPage_Click(object sender, RoutedEventArgs e)
+        {
+            int totalPages = (int)Math.Ceiling((double)currentResults.Count / pageSize);
+            if (currentPage < totalPages)
+            {
+                currentPage++;
+                ShowPage();
+            }
+            else
+            {
+                StatusMessage.Text = "已在最後一頁";
             }
         }
 
@@ -111,7 +161,7 @@ namespace WmiQueryTool
         {
             try
             {
-                if (ResultGrid.ItemsSource is IEnumerable<WmiProperty> results)
+                if (currentResults.Count > 0)
                 {
                     var dialog = new SaveFileDialog
                     {
@@ -124,7 +174,7 @@ namespace WmiQueryTool
                         var sb = new StringBuilder();
                         sb.AppendLine("ObjectId,Property,Value");
 
-                        foreach (var item in results)
+                        foreach (var item in currentResults)
                         {
                             string objectId = item.ObjectId.Replace("\"", "\"\"");
                             string name = item.Name.Replace("\"", "\"\"");
@@ -151,7 +201,7 @@ namespace WmiQueryTool
             }
         }
 
-        // 套用篩選 (不使用 ICollectionView)
+        // 套用篩選
         private void ApplyFilter_Click(object sender, RoutedEventArgs e)
         {
             string keyword = FilterBox.Text.Trim();
@@ -165,14 +215,17 @@ namespace WmiQueryTool
                 prop.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
                 prop.Value.Contains(keyword, StringComparison.OrdinalIgnoreCase));
 
-            ResultGrid.ItemsSource = filtered;
+            currentResults = filtered;
+            currentPage = 1;
+            ShowPage();
+
             StatusMessage.Text = $"已套用篩選：{keyword}，共 {filtered.Count} 筆結果。";
         }
 
-        // 清除篩選 (不使用 ICollectionView)
+        // 清除篩選
         private void ClearFilter_Click(object sender, RoutedEventArgs e)
         {
-            ResultGrid.ItemsSource = currentResults;
+            RunQuery_Click(sender, e); // 重新執行查詢以恢復完整結果
             FilterBox.Text = "";
             StatusMessage.Text = "已清除篩選。";
         }
