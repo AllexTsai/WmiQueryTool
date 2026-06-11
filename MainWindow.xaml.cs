@@ -13,6 +13,8 @@ namespace WmiQueryTool
 
     public partial class MainWindow : Window
     {
+        private readonly List<string> history = new();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -53,6 +55,9 @@ namespace WmiQueryTool
                 {
                     ResultGrid.ItemsSource = results;
                     StatusMessage.Text = $"查詢完成，共 {objectIndex - 1} 個物件，{results.Count} 筆屬性。";
+
+                    // 更新歷史紀錄
+                    AddToHistory(query);
                 }
                 else
                 {
@@ -64,6 +69,26 @@ namespace WmiQueryTool
             {
                 StatusMessage.Text = $"查詢失敗: {ex.Message}";
                 MessageBox.Show($"Error: {ex.Message}", "Query Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void AddToHistory(string query)
+        {
+            if (!history.Contains(query))
+            {
+                history.Insert(0, query);
+                if (history.Count > 10) history.RemoveAt(history.Count - 1);
+
+                HistoryList.ItemsSource = null;
+                HistoryList.ItemsSource = history;
+            }
+        }
+
+        private void HistoryList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (HistoryList.SelectedItem is string selectedQuery)
+            {
+                QueryBox.Text = selectedQuery;
             }
         }
 
