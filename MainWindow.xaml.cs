@@ -9,7 +9,6 @@ using Microsoft.Win32;
 
 namespace WmiQueryTool
 {
-    // 用 record 定義，避免 NRT 警告
     public record WmiProperty(string ObjectId, string Name, string Value);
 
     public partial class MainWindow : Window
@@ -50,10 +49,20 @@ namespace WmiQueryTool
                     objectIndex++;
                 }
 
-                ResultGrid.ItemsSource = results;
+                if (results.Count > 0)
+                {
+                    ResultGrid.ItemsSource = results;
+                    StatusMessage.Text = $"查詢完成，共 {objectIndex - 1} 個物件，{results.Count} 筆屬性。";
+                }
+                else
+                {
+                    ResultGrid.ItemsSource = null;
+                    StatusMessage.Text = "查詢沒有返回任何結果。";
+                }
             }
             catch (Exception ex)
             {
+                StatusMessage.Text = $"查詢失敗: {ex.Message}";
                 MessageBox.Show($"Error: {ex.Message}", "Query Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -64,7 +73,6 @@ namespace WmiQueryTool
             {
                 if (ResultGrid.ItemsSource is IEnumerable<WmiProperty> results)
                 {
-                    // 讓使用者選擇存檔位置
                     var dialog = new SaveFileDialog
                     {
                         Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
@@ -86,16 +94,19 @@ namespace WmiQueryTool
 
                         File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
 
+                        StatusMessage.Text = $"CSV 已匯出至 {dialog.FileName}";
                         MessageBox.Show($"CSV 已匯出至 {dialog.FileName}", "Export Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
                 else
                 {
+                    StatusMessage.Text = "目前沒有資料可匯出。";
                     MessageBox.Show("目前沒有資料可匯出。", "No Data", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
+                StatusMessage.Text = $"匯出失敗: {ex.Message}";
                 MessageBox.Show($"匯出失敗: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

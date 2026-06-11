@@ -1,36 +1,54 @@
 ﻿<Window x:Class="WmiQueryTool.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="WMI Query Tool" Height="500" Width="700">
+        Title="WMI Query Tool" Height="600" Width="800">
     <Grid Margin="10">
-        <StackPanel>
-            <GroupBox Header="Common Queries" Margin="0,0,0,10">
-                <ComboBox x:Name="QuerySelector" Height="30" SelectionChanged="QuerySelector_Changed">
-                    <ComboBoxItem Content="Operating System" Tag="Win32_OperatingSystem"/>
-                    <ComboBoxItem Content="Processor" Tag="Win32_Processor"/>
-                    <ComboBoxItem Content="Video Controller" Tag="Win32_VideoController"/>
-                    <ComboBoxItem Content="Physical Memory" Tag="Win32_PhysicalMemory"/>
-                </ComboBox>
-            </GroupBox>
+        <TabControl>
+            <!-- 查詢設定分頁 -->
+            <TabItem Header="Query Settings">
+                <StackPanel Margin="10">
+                    <GroupBox Header="Common Queries" Margin="0,0,0,10">
+                        <ComboBox x:Name="QuerySelector" Height="30" SelectionChanged="QuerySelector_Changed">
+                            <ComboBoxItem Content="Operating System" Tag="Win32_OperatingSystem"/>
+                            <ComboBoxItem Content="Processor" Tag="Win32_Processor"/>
+                            <ComboBoxItem Content="Video Controller" Tag="Win32_VideoController"/>
+                            <ComboBoxItem Content="Physical Memory" Tag="Win32_PhysicalMemory"/>
+                        </ComboBox>
+                    </GroupBox>
 
-            <GroupBox Header="Custom Query" Margin="0,0,0,10">
-                <TextBox x:Name="QueryBox" Height="30" 
-                         Text="SELECT * FROM Win32_OperatingSystem"/>
-            </GroupBox>
+                    <GroupBox Header="Custom Query" Margin="0,0,0,10">
+                        <TextBox x:Name="QueryBox" Height="30" 
+                                 Text="SELECT * FROM Win32_OperatingSystem"/>
+                    </GroupBox>
 
-            <Button Content="Run Query" Height="30" Margin="0,10,0,10"
-                    Click="RunQuery_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
+                        <Button Content="Run Query" Width="100" Margin="0,0,10,0"
+                                Click="RunQuery_Click"/>
+                        <Button Content="Export to CSV" Width="120"
+                                Click="ExportCsv_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </TabItem>
 
-            <Button Content="Export to CSV" Height="30" Margin="0,0,0,10"
-                    Click="ExportCsv_Click"/>
-
-            <DataGrid x:Name="ResultGrid" Height="300" AutoGenerateColumns="False"
-                      IsReadOnly="True" Margin="0,10,0,0">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Property" Binding="{Binding Name}" Width="200"/>
-                    <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </StackPanel>
+            <!-- 查詢結果分頁 -->
+            <TabItem Header="Results">
+                <DockPanel Margin="10">
+                    <DataGrid x:Name="ResultGrid" AutoGenerateColumns="False"
+                              IsReadOnly="True" DockPanel.Dock="Top" Height="450">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ObjectId" Binding="{Binding ObjectId}" Width="120"/>
+                            <DataGridTextColumn Header="Property" Binding="{Binding Name}" Width="200"/>
+                            <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <!-- 狀態列 -->
+                    <StatusBar DockPanel.Dock="Bottom">
+                        <StatusBarItem>
+                            <TextBlock x:Name="StatusMessage" Text="Ready" />
+                        </StatusBarItem>
+                    </StatusBar>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
