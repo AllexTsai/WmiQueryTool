@@ -1,52 +1,50 @@
 # WmiQueryTool
 
-## 📖 專案簡介
-WmiQueryTool 是一個 WPF 範例程式，用來展示如何透過 WMI (Windows Management Instrumentation) 查詢系統資訊，並在 UI 中顯示結果。  
-目前專案完成到 **查詢結果分頁與統計**，包含查詢、篩選、匯出、分頁等功能。
+## 📖 Project Overview
+`WmiQueryTool` is a robust WPF diagnostic utility demonstrating how to interact with **WMI (Windows Management Instrumentation)** to query, analyze, and manipulate Windows system state telemetry. Designed with `.NET 10`, this application showcases production-ready patterns for handling large dataset retrieval, featuring dynamic keyword filtering, secure multi-format data export, and high-performance **client-side data pagination/statistics**.
+
+- **Target Framework**: `.NET 10.0`
+- **Core Technology**: `System.Management` (WMI Consumer API)
+- **Key Focus**: Windows Diagnostics, Client-Side Data Paging, Telemetry Filtering, and Forensic CSV Export.
 
 ---
 
-## ✨ 功能特色
-- **WMI 查詢**：支援輸入自訂查詢或選擇常用範本（CPU、記憶體、磁碟等）。
-- **查詢歷史**：保留最近 10 筆查詢，方便快速重用。
-- **結果顯示**：以 DataGrid 呈現查詢結果，支援篩選與清除。
-- **分頁與統計**（第九階段）：  
-  - 每頁顯示固定筆數（目前設定 10 筆）。  
-  - 顯示「第 X/Y 頁，共 N 筆屬性」。  
-  - 提供「上一頁 / 下一頁」切換。  
-- **匯出 CSV**：將查詢結果匯出成 CSV 檔案，方便後續分析。
+## ✨ Key Features
+- **Dynamic WMI Consumption**: Supports custom WQL (WMI Query Language) execution along with pre-configured operational templates (CPU, Memory, Physical Storage, etc.).
+- **Query Persistent History**: Caches the last 10 execution traces locally for rapid workflow reuse.
+- **Advanced Telemetry Visualization**: Renders complex object properties into a responsive DataGrid with runtime filtering capabilities.
+- **High-Performance Pagination & Metrics**:
+  - Implements custom memory-efficient pagination (defaulting to 10 records per view) to mitigate UI overhead.
+  - Dynamically calculates runtime metrics: `"Page X of Y | Total Properties: N"`.
+  - Provides seamless, lag-free structural switching via Next/Previous control logic.
+- **Forensic CSV Export**: Serializes structural WMI query results into standardized CSV format for post-incident reporting and SysOps analysis.
 
 ---
 
-## 🚀 使用方式
-1. **執行程式**：以管理員身份啟動（部分 WMI 查詢需要）。
-2. **選擇查詢**：  
-   - 從下拉選單選擇常用查詢（例如 `Win32_Processor`）。  
-   - 或輸入自訂 WMI 查詢語法。  
-3. **執行查詢**：點擊「Run Query」按鈕。  
-4. **瀏覽結果**：  
-   - 使用篩選框輸入關鍵字，套用或清除篩選。  
-   - 使用分頁控制切換結果。  
-5. **匯出結果**：點擊「Export to CSV」將結果存檔。
+## 🚀 Usage & Workflow
+1. **Initialization**: Launch the application with **Administrator privileges** (required for low-level or restricted WMI namespaces).
+2. **Telemetry Selection**: 
+   - Choose a quick-access class from the pre-configured templates (e.g., `Win32_Processor`, `Win32_OperatingSystem`).
+   - Alternatively, write specialized custom WQL statements in the query interface.
+3. **Execution**: Click **"Run Query"** to dispatch the asynchronous infrastructure request.
+4. **Data Browsing & Filtering**:
+   - Apply real-time keywords in the filter mechanism to dynamically isolate critical system indicators.
+   - Traverse voluminous properties smoothly using the structured pagination dashboard.
+5. **Reporting**: Click **"Export to CSV"** to archive the telemetry output into a file.
 
 ---
 
-## ⚙️ 技術細節
-- **框架**：.NET 10 / WPF
-- **主要套件**：`System.Management` (WMI 查詢)
-- **UI 元件**：DataGrid、ComboBox、ListBox、StatusBar
-- **分頁邏輯**：`List<T>.GetRange()` 搭配 `currentPage` 與 `pageSize`
-- **匯出 CSV**：使用 `StringBuilder` 建立字串並寫入檔案
+## ⚙️ Technical Stack
+- **Framework & Engine**: .NET 10 / WPF desktop architecture
+- **Core Namespace**: `System.Management` (Native WMI Management API Bridge)
+- **UI & Layout**: DataGrid, ComboBox, Layered Controls, and StatusBar Data Binding
+- **Pagination Core**: Optimized `List<T>.GetRange()` algorithmic slicing driven by stateful `currentPage` and `pageSize` properties
+- **Serialization Engine**: Structured `StringBuilder` implementation engineered for reliable, memory-efficient data writing
 
 ---
 
-## 📌 未來改進方向
-- 查詢結果圖表化（CPU 使用率、記憶體容量長條圖/圓餅圖）
-- 增加更多 WMI Provider（例如網路介面、磁碟使用率）
-- UI 優化（搜尋、排序、虛擬化）
-- 增加錯誤處理與提示訊息
-
----
-
-## 📜 License
-MIT License
+## 📌 Roadmap & Future Enhancements
+- [ ] **Data Visualization Dashboards**: Render hardware capacity telemetry (CPU usage, memory allocation) via graphical charts (Bar/Pie charts).
+- [ ] **Namespace Expansion**: Integrate advanced WMI Providers including Network Adapter Configuration and Storage Volume Metrics.
+- [ ] **Advanced Data Grid Virtualization**: Implement native UI Virtualization to seamlessly handle continuous multi-thousand-row data pipelines.
+- [ ] **Resilient Exception Handling**: Embed fine-grained WMI error trapping (e.g., handling Access Denied or Invalid Class exceptions gracefully).

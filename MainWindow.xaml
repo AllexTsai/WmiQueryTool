@@ -6,7 +6,7 @@
         Width="900">
     <Grid Margin="10">
         <TabControl>
-            <!-- 查詢設定分頁 -->
+            <!-- Query settings -->
             <TabItem Header="Query Settings">
                 <StackPanel Margin="10">
                     <GroupBox Header="Common Queries"
@@ -75,10 +75,10 @@
                 </StackPanel>
             </TabItem>
 
-            <!-- 查詢結果分頁 -->
+            <!-- Query result -->
             <TabItem Header="Results">
                 <DockPanel Margin="10">
-                    <!-- 篩選區 -->
+                    <!-- Filter area -->
                     <StackPanel Orientation="Horizontal"
                             DockPanel.Dock="Top"
                             Margin="0,0,0,10">
@@ -116,7 +116,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <!-- 分頁控制 -->
+                    <!-- Page control -->
                     <StackPanel Orientation="Horizontal"
                             DockPanel.Dock="Bottom"
                             Margin="0,10,0,0">
@@ -132,7 +132,7 @@
                                 VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- 狀態列 -->
+                    <!-- Status bar -->
                     <StatusBar DockPanel.Dock="Bottom">
                         <StatusBarItem>
                             <TextBlock x:Name="StatusMessage"

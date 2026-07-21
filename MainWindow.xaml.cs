@@ -16,14 +16,14 @@ namespace WmiQueryTool
         private List<WmiProperty> currentResults = new();
         private readonly List<string> history = new();
         private int currentPage = 1;
-        private int pageSize = 10; // 每頁顯示 10 筆，方便測試
+        private int pageSize = 10; // 10 entries per page
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        // 常用查詢選擇
+        // Commonly used query selections
         private void QuerySelector_Changed(object sender, SelectionChangedEventArgs e)
         {
             if (QuerySelector.SelectedItem is ComboBoxItem item && item.Tag is string className)
@@ -32,7 +32,7 @@ namespace WmiQueryTool
             }
         }
 
-        // 範本查詢選擇
+        // Template search selection
         private void TemplateSelector_Changed(object sender, SelectionChangedEventArgs e)
         {
             if (TemplateSelector.SelectedItem is ComboBoxItem item && item.Tag is string queryTemplate)
@@ -41,7 +41,7 @@ namespace WmiQueryTool
             }
         }
 
-        // 執行查詢
+        // Run query
         private void RunQuery_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -82,7 +82,7 @@ namespace WmiQueryTool
             }
         }
 
-        // 顯示分頁
+        // Show page
         private void ShowPage()
         {
             int total = currentResults.Count;
@@ -105,7 +105,7 @@ namespace WmiQueryTool
             PageInfo.Text = $"第 {currentPage}/{totalPages} 頁，共 {total} 筆屬性";
         }
 
-        // 上一頁
+        // Previous page
         private void PrevPage_Click(object sender, RoutedEventArgs e)
         {
             if (currentPage > 1)
@@ -119,7 +119,7 @@ namespace WmiQueryTool
             }
         }
 
-        // 下一頁
+        // Next page
         private void NextPage_Click(object sender, RoutedEventArgs e)
         {
             int totalPages = (int)Math.Ceiling((double)currentResults.Count / pageSize);
@@ -134,7 +134,7 @@ namespace WmiQueryTool
             }
         }
 
-        // 更新查詢歷史
+        // Update query history
         private void AddToHistory(string query)
         {
             if (!history.Contains(query))
@@ -147,7 +147,7 @@ namespace WmiQueryTool
             }
         }
 
-        // 選擇歷史查詢
+        // Select historical query
         private void HistoryList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (HistoryList.SelectedItem is string selectedQuery)
@@ -156,7 +156,7 @@ namespace WmiQueryTool
             }
         }
 
-        // 匯出 CSV
+        // Export CSV
         private void ExportCsv_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -201,7 +201,7 @@ namespace WmiQueryTool
             }
         }
 
-        // 套用篩選
+        // Apply filter
         private void ApplyFilter_Click(object sender, RoutedEventArgs e)
         {
             string keyword = FilterBox.Text.Trim();
@@ -222,7 +222,7 @@ namespace WmiQueryTool
             StatusMessage.Text = $"已套用篩選：{keyword}，共 {filtered.Count} 筆結果。";
         }
 
-        // 清除篩選
+        // Clear filter
         private void ClearFilter_Click(object sender, RoutedEventArgs e)
         {
             RunQuery_Click(sender, e); // 重新執行查詢以恢復完整結果
