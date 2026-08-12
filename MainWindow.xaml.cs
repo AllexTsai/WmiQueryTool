@@ -229,5 +229,89 @@ namespace WmiQueryTool
             FilterBox.Text = "";
             StatusMessage.Text = "已清除篩選。";
         }
+
+        // Override the Windows lifecycle and intercept AI commands before the window is actually rendered.
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            // Retrieve command line startup parameters
+            string[] args = Environment.GetCommandLineArgs();
+
+            // args[0] is the path to the executable file itself, and args[1] is the wmiCategory (such as CPU, GPU) that we passed over.
+            if (args.Length > 1)
+            {
+                string category = args[1].ToUpper();
+
+                // Align the original UI ComboBox's SQL template
+                string wmiSql = category switch
+                {
+                    "OS" => "SELECT Caption, Version, BuildNumber FROM Win32_OperatingSystem",
+                    "CPU" => "SELECT Name, NumberOfCores, NumberOfLogicalProcessors FROM Win32_Processor",
+                    "GPU" => "SELECT Name, DriverVersion, AdapterRAM FROM Win32_VideoController",
+                    "Memory" => "SELECT Manufacturer, Capacity, Speed FROM Win32_PhysicalMemory",
+                    "Disk" => "SELECT Model, Size, InterfaceType FROM Win32_DiskDrive",
+                    _ => "SELECT Caption, Version, BuildNumber FROM Win32_OperatingSystem"
+                };
+
+                // Execution occurs silently in the background: Simply enter QueryBox and it will call pre-written core engine.
+                QueryBox.Text = wmiSql;
+                
+                // In essence, it calls original query function (passing in null is sufficient, since the code doesn't use sender/e).
+                RunQueryForAi();
+
+                // Process-level standard output: Returns the results to LocalAIApp as a text stream.
+                if (currentResults != null && currentResults.Count > 0)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var item in currentResults)
+                    {
+                        sb.AppendLine($"[{item.ObjectId}] {item.Name} = {item.Value}");
+                    }
+                    Console.WriteLine(sb.ToString());
+                }
+                else
+                {
+                    Console.WriteLine("未查詢到任何硬體數據。");
+                }
+
+                // Task complete, process exits cleanly without popping up WPF UI to disturb the user.
+                Application.Current.Shutdown();
+            }
+        }
+
+        /// <summary>
+        /// A static query plugin specifically designed for AI calls (copies and simplifies the original RunQuery_Click, removes MessageBox to prevent background freezing).
+        /// </summary>
+        private void RunQueryForAi()
+        {
+            try
+            {
+                string query = QueryBox.Text;
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
+                var results = new List<WmiProperty>();
+                int objectIndex = 1;
+
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    foreach (var prop in obj.Properties)
+                    {
+                        results.Add(new WmiProperty(
+                            $"Object {objectIndex}",
+                            prop.Name,
+                            prop.Value?.ToString() ?? ""
+                        ));
+                    }
+                    objectIndex++;
+                }
+                // Fill your original paging buffer for the Console above to read.
+                currentResults = results; 
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WMI底層錯誤] {ex.Message}");
+            }
+        }
+
     }
 }
