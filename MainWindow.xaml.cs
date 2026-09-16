@@ -242,6 +242,7 @@ namespace WmiQueryTool
             if (args.Length > 1)
             {
                 string category = args[1].ToUpper();
+                Console.WriteLine($"[OnSourceInitialized] Matched category: {category}");
 
                 // Align the original UI ComboBox's SQL template
                 string wmiSql = category switch
@@ -249,8 +250,8 @@ namespace WmiQueryTool
                     "OS" => "SELECT Caption, Version, BuildNumber FROM Win32_OperatingSystem",
                     "CPU" => "SELECT Name, NumberOfCores, NumberOfLogicalProcessors FROM Win32_Processor",
                     "GPU" => "SELECT Name, DriverVersion, AdapterRAM FROM Win32_VideoController",
-                    "Memory" => "SELECT Manufacturer, Capacity, Speed FROM Win32_PhysicalMemory",
-                    "Disk" => "SELECT Model, Size, InterfaceType FROM Win32_DiskDrive",
+                    "MEMORY" => "SELECT Manufacturer, Capacity, Speed FROM Win32_PhysicalMemory",
+                    "DISK" => "SELECT Model, Size, InterfaceType FROM Win32_DiskDrive",
                     _ => "SELECT Caption, Version, BuildNumber FROM Win32_OperatingSystem"
                 };
 
