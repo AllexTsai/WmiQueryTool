@@ -242,7 +242,6 @@ namespace WmiQueryTool
             if (args.Length > 1)
             {
                 string category = args[1].ToUpper();
-                Console.WriteLine($"[OnSourceInitialized] Matched category: {category}");
 
                 // Align the original UI ComboBox's SQL template
                 string wmiSql = category switch
@@ -277,6 +276,7 @@ namespace WmiQueryTool
                 }
 
                 // Task complete, process exits cleanly without popping up WPF UI to disturb the user.
+                Console.Out.Flush();
                 Application.Current.Shutdown();
             }
         }
