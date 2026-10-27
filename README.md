@@ -22,7 +22,7 @@
 ---
 
 ## 🤖 Headless Mode: AI-Driven Cross-Process Integration
-Beyond normal GUI interaction, this application also supports a **headless** invocation mode. When launched with a command-line argument matching one of the predefined categories (`OS`, `CPU`, `GPU`, `Memory`, `Disk`), the program skips the normal UI display flow, matches the corresponding WQL query template, executes the query, and prints the results to standard output (stdout) before terminating immediately — no window is ever shown during this process.
+Beyond normal GUI interaction, this application also supports a **headless** invocation mode. When launched with a command-line argument matching one of the predefined categories (`OS`, `CPU`, `GPU`, `Memory`, `Disk`), the program skips the normal UI display flow, matches the corresponding WQL query template, executes the query, and prints the results to standard output (stdout) before terminating immediately — The normal UI is skipped; a window may briefly flash when the program is launched from a console.
 
 This mechanism is designed to be invoked by an external process. The actual caller is a sibling project, **LocalAIApp**, a local SLM (Small Language Model) inference gateway. When it detects a custom protocol tag emitted by the AI model's output, it invokes this program via `Process.Start` with `RedirectStandardOutput`, and reads back the returned query results to populate the response shown to the user. Because the caller actively reads the redirected pipe, all output logic in this program has been tuned to stay clean and free of debug messages, and it calls `Console.Out.Flush()` before exiting to ensure buffered content is always written out before the process is terminated by WPF's shutdown flow.
 
